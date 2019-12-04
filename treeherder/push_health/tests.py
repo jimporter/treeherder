@@ -172,6 +172,8 @@ def get_test_failures(push, repository_ids):
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
+
+    # option_map is used to map platforms for the job.option_collection_hash
     option_map = OptionCollection.objects.get_option_collection_map()
     push_date = push.time.date()
     intermittent_history, cache_key = get_history(
@@ -186,16 +188,24 @@ def get_test_failures(push, repository_ids):
         fixed_by_commit_history_days,
         option_map,
         repository_ids)
+
+    # push_failures are tests that have FailureLine records with a test_name.
+    # unsupported_jobs are jobs that don't have FailureLine records that help us determine intermittency.
+    # These are failures ONLY for the current push, not relative to history.
     push_failures, unsupported_jobs = get_current_test_failures(push, option_map)
     filtered_push_failures = [
         failure for failure in push_failures if filter_failure(failure)
     ]
 
+    # Based on the intermittent and fbc history, set the appropriate classification where we think
+    # eath test falls.
     set_classifications(
         filtered_push_failures,
         intermittent_history,
         fixed_by_commit_history,
     )
+    # If we have failed tests that have also passed, we gather them both.  This helps us determine
+    # if a job is intermittent based on the current push results.
     set_matching_passed_jobs(filtered_push_failures, push)
 
     failures = get_grouped(filtered_push_failures)
