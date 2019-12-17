@@ -41,7 +41,7 @@ class GraphsContainer extends React.Component {
 
   componentDidMount() {
     const { zoom, selectedDataPoint } = this.props;
-    console.log(zoom)
+
     this.addHighlights();
     if (selectedDataPoint) this.verifySelectedDataPoint();
   }
@@ -87,7 +87,7 @@ class GraphsContainer extends React.Component {
     } else {
       updateStateParams({
         errorMessages: [
-          'This datapoint can\'t be found for the specified date range.'
+          "This datapoint can't be found for the specified date range.",
         ],
       });
     }
@@ -241,7 +241,7 @@ class GraphsContainer extends React.Component {
     });
   };
 
-  updateZoom = (zoom) => {
+  updateZoom = zoom => {
     const { lockTooltip } = this.state;
     const { updateStateParams } = this.props;
 
@@ -249,7 +249,7 @@ class GraphsContainer extends React.Component {
       this.closeTooltip();
     }
     updateStateParams({ zoom });
-  }
+  };
 
   render() {
     const { testData, zoom, highlightedRevisions } = this.props;
@@ -276,9 +276,9 @@ class GraphsContainer extends React.Component {
       right: this.rightChartPadding,
       bottom: 50,
     };
-    console.log(zoom)
+
     return (
-      <React.Fragment>
+      <span data-testid="graphContainer">
         <Row>
           <Col className="p-0 col-md-auto">
             <VictoryChart
@@ -419,6 +419,7 @@ class GraphsContainer extends React.Component {
                 labels={() => ''}
                 labelComponent={
                   <VictoryTooltip
+                    renderInPortal={false}
                     flyoutComponent={
                       <VictoryPortal>
                         <GraphTooltip
@@ -446,7 +447,7 @@ class GraphsContainer extends React.Component {
             </VictoryChart>
           </Col>
         </Row>
-      </React.Fragment>
+      </span>
     );
   }
 }
