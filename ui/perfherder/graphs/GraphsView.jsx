@@ -39,6 +39,7 @@ class GraphsView extends React.Component {
       highlightAlerts: true,
       highlightedRevisions: ['', ''],
       testData: [],
+      changelogData: [],
       errorMessages: [],
       options: {},
       loading: false,
@@ -74,6 +75,8 @@ class GraphsView extends React.Component {
     } = queryString.parse(this.props.location.search);
 
     const updates = {};
+
+    this.getChangelogData();
 
     if (series) {
       const _series = typeof series === 'string' ? [series] : series;
@@ -164,6 +167,16 @@ class GraphsView extends React.Component {
         },
       );
     }
+  };
+
+  getChangelogData = async () => {
+    const rawData = await getData(createApiUrl(endpoints.changelog));
+    const changelogData = rawData.data.map(i => {
+      const { date, ...extra } = i;
+      return { date: Date.parse(date), ...extra };
+    });
+    console.log('[squib] getChangelogData', changelogData);
+    this.setState({ changelogData });
   };
 
   createGraphObject = async seriesData => {
@@ -312,6 +325,7 @@ class GraphsView extends React.Component {
     const {
       timeRange,
       testData,
+      changelogData,
       highlightAlerts,
       highlightedRevisions,
       selectedDataPoint,
@@ -394,6 +408,7 @@ class GraphsView extends React.Component {
                 options={options}
                 getTestData={this.getTestData}
                 testData={testData}
+                changelogData={changelogData}
                 showModal={showModal}
                 showTable={showTable}
                 highlightAlerts={highlightAlerts}
